@@ -1,1 +1,7 @@
 MASM.EXE
+LINK.EXE
+LINK.OBJ
+TEST.EXE
+test.asm
+KSBRICK.EXE
+.DS_Store

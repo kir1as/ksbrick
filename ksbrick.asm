@@ -15,6 +15,9 @@ donnees segment public    ; Segment de donnees
 ; vos variables
 
 vitesse DB 0
+arrow_y DW 100
+tour DB 0
+cpt_arrow DB 0
 
 ; ============- BALL ICONS =====================
 ball DW   14,140
@@ -29,6 +32,89 @@ bl41 DB   0, 0, 0, 0, 0, 31, 31, 31, 31, 0, 0, 0, 0, 0
 bl42 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 bl51 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
+strt1 DW   14,140
+st01 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+st11 DB   0, 31, 31, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+st12 DB   31, 0, 0, 0, 31, 0, 0, 31, 0, 0, 0, 0, 0, 0
+st21 DB   31, 0, 0, 0, 0, 0, 31, 31, 31, 31, 0, 0, 0, 31
+st22 DB   0, 31, 31, 31, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0
+st31 DB   0, 0, 0, 0, 31, 0, 0, 31, 0, 0, 0, 0, 0, 31
+st32 DB   31, 0, 0, 0, 31, 0, 0, 31, 0, 31, 0, 0, 31, 0
+st41 DB   0, 31, 31, 31, 0, 0, 0, 0, 31, 0, 0, 0, 0, 31
+st42 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+st51 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+strt2 DW   14,140
+st012 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+st112 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+st122 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0
+st212 DB   31, 31, 0, 0, 31, 0, 31, 31, 0, 0, 31, 31, 31, 31
+st222 DB   0, 0, 31, 0, 0, 31, 0, 0, 31, 0, 0, 31, 0, 0
+st312 DB   31, 31, 31, 0, 0, 31, 0, 0, 0, 0, 0, 31, 0, 0
+st322 DB   0, 0, 31, 0, 0, 31, 0, 0, 0, 0, 0, 31, 0, 31
+st412 DB   31, 31, 31, 0, 31, 31, 31, 0, 0, 0, 0, 0, 31, 0
+st422 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+st512 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+arrow DW   14,140
+ar01 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ar11 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ar12 DB   0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ar21 DB   0, 0, 0, 31, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ar22 DB   0, 0, 0, 31, 31, 31, 0, 0, 0, 0, 0, 0, 0, 0
+ar31 DB   0, 0, 0, 31, 31, 31, 0, 0, 0, 0, 0, 0, 0, 0
+ar32 DB   0, 0, 0, 31, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ar41 DB   0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ar42 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ar51 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+black DW   14,140
+blc01 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc11 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc12 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc21 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc22 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc31 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc32 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc41 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc42 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+blc51 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+quit DW   14,140
+qt01 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+qt11 DB   0, 31, 31, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+qt12 DB   31, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0
+qt21 DB   31, 0, 0, 0, 31, 0, 31, 0, 0, 31, 0, 0, 0, 0
+qt22 DB   31, 0, 0, 0, 31, 0, 31, 0, 0, 31, 0, 0, 0, 0
+qt31 DB   31, 0, 31, 0, 31, 0, 31, 0, 0, 31, 0, 0, 0, 0
+qt32 DB   31, 0, 0, 31, 0, 0, 31, 0, 31, 31, 0, 0, 0, 0
+qt41 DB   0, 31, 31, 0, 31, 0, 0, 31, 0, 31, 0, 0, 0, 0
+qt42 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+qt51 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+quit2 DW   14,140
+qt012 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+qt112 DB   31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+qt122 DB   0, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0
+qt212 DB   31, 0, 0, 0, 31, 31, 31, 31, 0, 0, 0, 0, 0, 0
+qt222 DB   31, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0
+qt312 DB   31, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 0
+qt322 DB   31, 0, 0, 0, 0, 31, 0, 31, 0, 0, 0, 0, 0, 0
+qt412 DB   31, 31, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0
+qt422 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+qt512 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
+bar DW   14,140
+br01 DB   0, 0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0, 0
+br11 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
+br12 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
+br21 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
+br22 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
+br31 DB   0, 0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0, 0
+br32 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+br41 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+br42 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+br51 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 donnees ends
 
@@ -40,8 +126,97 @@ myprog:			; debut de la zone instructions
     
     mov AX, donnees
     mov DS, AX	
-
+    mov tempo, 50
     CALL Video13h
+
+menu:
+    mov hX, 280
+    mov hY, 100
+    mov BX, offset strt1
+    CALL drawIcon
+
+    mov hX, 294
+    mov hY, 100
+    mov BX, offset strt2
+    CALL drawIcon
+
+    mov hX, 280
+    mov hY, 120
+    mov BX, offset quit
+    CALL drawIcon
+
+    mov hX, 294
+    mov hY, 120
+    mov BX, offset quit2
+    CALL drawIcon
+
+move_arrow:
+    mov AX, arrow_y
+    mov hX, 266
+    mov hY, AX
+
+    cmp tour, 1
+    je blink
+
+    mov BX, offset arrow
+    mov tour, 1
+    jmp draw_arrow
+blink:
+    mov BX, offset black
+    mov tour, 0
+
+draw_arrow:
+    CALL drawIcon
+    call sleep
+    call peekKey
+    cmp userinput, 'm'
+    je menu_choice
+    cmp userinput, 'H'
+    je move_up_arrow
+    cmp userinput, 'P'
+    je move_down_arrow
+    jmp move_arrow
+
+move_up_arrow:
+    mov AX, arrow_y
+    mov hX, 266
+    mov hY, AX
+    mov BX, offset black
+    call drawIcon
+
+    cmp cpt_arrow, 0
+    jne move_up_arrow_not_equal_to_0
+    mov cpt_arrow, 1
+    mov arrow_y, 120
+    jmp move_arrow
+
+move_up_arrow_not_equal_to_0:
+    mov cpt_arrow, 0
+    mov arrow_y, 100
+    jmp move_arrow
+
+move_down_arrow:
+    mov AX, arrow_y
+    mov hX, 266
+    mov hY, AX
+    mov BX, offset black
+    call drawIcon
+
+    cmp cpt_arrow, 0
+    jne move_down_arrow_not_equal_to_0
+    mov cpt_arrow, 1
+    mov arrow_y, 120
+    jmp move_arrow
+
+move_down_arrow_not_equal_to_0:
+    mov cpt_arrow, 0
+    mov arrow_y, 100
+    jmp move_arrow
+
+menu_choice:
+    cmp cpt_arrow, 0
+    je terrain
+    jmp fin
 
 terrain:
     mov col, 31
@@ -69,9 +244,14 @@ boucle:
     mov hX, 100
     mov hY, 100
     mov BX, offset ball
+    CALL drawIcon
+
+    mov hX, 100
+    mov hY, 180
+    mov BX, offset bar
+    CALL drawIcon
 
 dessine:
-    CALL drawIcon
     call peekKey
     cmp userinput, '*'
     je fin
