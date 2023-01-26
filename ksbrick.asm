@@ -14,23 +14,27 @@ pile    ends
 donnees segment public    ; Segment de donnees
 ; vos variables
 
-vitesse DB 0
+ball_speed_x DW 1
+ball_speed_y DW -1
+;ball_speed_tour DW 10
 arrow_y DW 100
 tour DB 0
 cpt_arrow DB 0
+ball_x  DW 100
+ball_y DW 150
+bar_x DW 100
+bar_step DW 5
 
 ; ============- BALL ICONS =====================
-ball DW   14,140
-bl01 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-bl11 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-bl12 DB   0, 0, 0, 0, 0, 31, 31, 31, 31, 0, 0, 0, 0, 0
-bl21 DB   0, 0, 0, 0, 31, 31, 31, 31, 31, 31, 0, 0, 0, 0
-bl22 DB   0, 0, 0, 0, 31, 31, 31, 31, 31, 31, 0, 0, 0, 0
-bl31 DB   0, 0, 0, 0, 31, 31, 31, 31, 31, 31, 0, 0, 0, 0
-bl32 DB   0, 0, 0, 0, 31, 31, 31, 31, 31, 31, 0, 0, 0, 0
-bl41 DB   0, 0, 0, 0, 0, 31, 31, 31, 31, 0, 0, 0, 0, 0
-bl42 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-bl51 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ball DW   8,64
+bl11 DB   0, 0, 0, 0, 0, 0, 0, 0
+bl12 DB   0, 0, 31, 31, 31, 31, 0, 0
+bl21 DB   0, 31, 31, 31, 31, 31, 31, 0
+bl22 DB   0, 31, 31, 31, 31, 31, 31, 0
+bl31 DB   0, 31, 31, 31, 31, 31, 31, 0
+bl32 DB   0, 31, 31, 31, 31, 31, 31, 0
+bl41 DB   0, 0, 31, 31, 31, 31, 0, 0
+bl42 DB   0, 0, 0, 0, 0, 0, 0, 0
 
 strt1 DW   14,140
 st01 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -104,17 +108,21 @@ qt412 DB   31, 31, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0
 qt422 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 qt512 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-bar DW   14,140
-br01 DB   0, 0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0, 0
-br11 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
-br12 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
-br21 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
-br22 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
-br31 DB   0, 0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0, 0
-br32 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-br41 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-br42 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-br51 DB   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+bar DW   25,150
+br01 DB   0, 0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0, 0
+br11 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
+br12 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
+br21 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
+br22 DB   0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0
+br31 DB   0, 0, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 0, 0
+
+black2 DW   5,30
+blc012 DB   0, 0, 0, 0, 0
+blc112 DB   0, 0, 0, 0, 0
+blc122 DB   0, 0, 0, 0, 0
+blc212 DB   0, 0, 0, 0, 0
+blc222 DB   0, 0, 0, 0, 0
+blc312 DB   0, 0, 0, 0, 0
 
 donnees ends
 
@@ -241,21 +249,76 @@ terrain:
     call fillRect
 
 boucle:
-    mov hX, 100
-    mov hY, 100
+    mov AX, ball_x
+    mov hX, AX
+    mov AX, ball_y
+    mov hY, AX
     mov BX, offset ball
     CALL drawIcon
 
-    mov hX, 100
+    mov AX, bar_x
+    mov hX, AX
     mov hY, 180
     mov BX, offset bar
     CALL drawIcon
+
+    call sleep
+    jmp dessine
+
+move_ball:
+    mov AX, ball_x
+    add AX, ball_speed_x
+    mov ball_x, AX
+    mov AX, ball_y
+    add AX, ball_speed_y
+    mov ball_y, AX
+    jmp boucle
 
 dessine:
     call peekKey
     cmp userinput, '*'
     je fin
-    jmp boucle
+    cmp userinput, 'a' ; a = droite
+    je move_bar_right
+    cmp userinput, 'd' ; d = gauche
+    je move_bar_left
+    jmp move_ball
+
+move_bar_left:
+    mov AX, bar_x
+    mov hX, AX
+    mov hY, 180
+    mov BX, offset black2
+    CALL drawIcon
+
+    mov AX, bar_step
+    add bar_x, AX 
+
+    jmp move_ball
+
+move_bar_right:
+    mov AX, bar_x
+    add AX, 25
+    sub AX, bar_step
+    mov hX, AX
+    mov hY, 180
+    mov BX, offset black2
+    CALL drawIcon
+
+    mov AX, bar_step
+    sub bar_x, AX
+
+    jmp move_ball
+
+; ball_collision_left:
+;     mov AX, ball_speed_x
+;     imul AX, -1
+;     mov ball_speed_x, AX
+; ball_collision_right:
+
+; ball_collision_up:
+
+; ball_collision_down:
 
 
 ; --------------- FIN DU CODE ------------
