@@ -15,7 +15,7 @@ donnees segment public    ; Segment de donnees
 ; vos variables
 
 ball_speed_x DW 1
-ball_speed_y DW -1
+ball_speed_y DW 1
 ;ball_speed_tour DW 10
 arrow_y DW 100
 tour DB 0
@@ -23,6 +23,7 @@ cpt_arrow DB 0
 ball_x  DW 100
 ball_y DW 150
 bar_x DW 100
+bar_y DW 180
 bar_step DW 5
 
 ; ============- BALL ICONS =====================
@@ -131,7 +132,6 @@ assume  cs:code,ds:donnees,es:code,ss:pile
 
 myprog:			; debut de la zone instructions
 ; --------------- CODER ICI --------------
-    
     mov AX, donnees
     mov DS, AX	
     mov tempo, 50
@@ -227,6 +227,7 @@ menu_choice:
     jmp fin
 
 terrain:
+    mov tempo, 10
     mov col, 31
     mov rX, 0
     mov Ry, 0
@@ -258,14 +259,54 @@ boucle:
 
     mov AX, bar_x
     mov hX, AX
-    mov hY, 180
+    mov AX, bar_y
+    mov hY, AX
     mov BX, offset bar
     CALL drawIcon
 
     call sleep
     jmp dessine
 
+move_bar_right:
+    mov AX, bar_x
+    add AX, 25
+    sub AX, bar_step
+    mov hX, AX
+    mov AX, bar_y
+    mov hY, AX
+    mov BX, offset black2
+    CALL drawIcon
+
+    mov AX, bar_step
+    sub bar_x, AX
+
+    jmp move_ball
+
+move_bar_left:
+    mov AX, bar_x
+    mov hX, AX
+    mov AX, bar_y
+    mov hY, AX
+    mov BX, offset black2
+    CALL drawIcon
+
+    mov AX, bar_step
+    add bar_x, AX 
+
+    jmp move_ball
+
 move_ball:
+; doit faire les comparaison des collisions ici
+    mov AX, ball_y
+    add AX, 7 ; hauteur de la ball
+    cmp AX, bar_y; 
+    je if_collision_with_bar
+end_if_collision_with_bar:
+    mov AX, ball_y
+    add AX, 7; hauteur de la ball
+    cmp AX, 200
+    je fin
+
     mov AX, ball_x
     add AX, ball_speed_x
     mov ball_x, AX
@@ -284,42 +325,28 @@ dessine:
     je move_bar_left
     jmp move_ball
 
-move_bar_left:
+ball_collision_horizontal:
+    mov AX, ball_speed_x
+    mov BX, -1
+    imul BX
+    mov ball_speed_x, AX
+    jmp end_if_collision_with_bar
+
+ball_collision_vertical:
+    mov AX, ball_speed_y
+    mov BX, -1
+    imul BX
+    mov ball_speed_y, AX
+    jmp end_if_collision_with_bar
+
+if_collision_with_bar:
     mov AX, bar_x
-    mov hX, AX
-    mov hY, 180
-    mov BX, offset black2
-    CALL drawIcon
-
-    mov AX, bar_step
-    add bar_x, AX 
-
-    jmp move_ball
-
-move_bar_right:
-    mov AX, bar_x
-    add AX, 25
-    sub AX, bar_step
-    mov hX, AX
-    mov hY, 180
-    mov BX, offset black2
-    CALL drawIcon
-
-    mov AX, bar_step
-    sub bar_x, AX
-
-    jmp move_ball
-
-; ball_collision_left:
-;     mov AX, ball_speed_x
-;     imul AX, -1
-;     mov ball_speed_x, AX
-; ball_collision_right:
-
-; ball_collision_up:
-
-; ball_collision_down:
-
+    cmp ball_x, AX
+    jb end_if_collision_with_bar
+    add AX, 22 ; largeur de la bar
+    cmp ball_x, AX
+    ja end_if_collision_with_bar
+    jmp ball_collision_vertical
 
 ; --------------- FIN DU CODE ------------
 fin:
