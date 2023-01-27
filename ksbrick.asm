@@ -279,7 +279,9 @@ move_bar_right:
 
     mov AX, bar_step
     sub bar_x, AX
-
+    cmp bar_x, 7
+    ja move_ball
+    add bar_x, AX
     jmp move_ball
 
 move_bar_left:
@@ -292,11 +294,22 @@ move_bar_left:
 
     mov AX, bar_step
     add bar_x, AX 
-
+    cmp bar_x, 225 ; 250 - 25 taille de la barre
+    jb move_ball
+    sub bar_x, AX
     jmp move_ball
 
+go_to_move_bar_right:
+    jmp move_bar_right
+go_to_move_bar_left:
+    jmp move_bar_left
 move_ball:
 ; doit faire les comparaison des collisions ici
+;comparer avec le terrain haut
+    mov AX, ball_y 
+    cmp AX, 8
+    je ball_collision_vertical
+
     mov AX, ball_y
     add AX, 7 ; hauteur de la ball
     cmp AX, bar_y; 
@@ -306,7 +319,16 @@ end_if_collision_with_bar:
     add AX, 7; hauteur de la ball
     cmp AX, 200
     je fin
-
+    
+    mov AX, ball_x
+    cmp AX, 8
+    je ball_collision_horizontal
+    mov AX, ball_x
+    add AX, 7 ;largeur de la ball
+    cmp AX, 249
+    je ball_collision_horizontal
+end_if_collision_horizontal_with_terrain:
+    
     mov AX, ball_x
     add AX, ball_speed_x
     mov ball_x, AX
@@ -320,9 +342,9 @@ dessine:
     cmp userinput, '*'
     je fin
     cmp userinput, 'a' ; a = droite
-    je move_bar_right
+    je go_to_move_bar_right
     cmp userinput, 'd' ; d = gauche
-    je move_bar_left
+    je go_to_move_bar_left
     jmp move_ball
 
 ball_collision_horizontal:
@@ -330,7 +352,7 @@ ball_collision_horizontal:
     mov BX, -1
     imul BX
     mov ball_speed_x, AX
-    jmp end_if_collision_with_bar
+    jmp end_if_collision_horizontal_with_terrain
 
 ball_collision_vertical:
     mov AX, ball_speed_y
