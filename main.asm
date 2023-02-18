@@ -19,7 +19,7 @@ donnees segment public    ; Segment de donnees
 	ball_speed_y DW 1       ; Valeur d'avancement de la balle sur Y
 
 	arrow_y DW 100          ; Position Y de la fleche du menu
-	arrow_blink_turn DB 0 				; Boolean qui simule 2 phase
+	arrow_blink_turn DB 0 	; Boolean qui simule 2 phase
 	arrow_index DB 0		; Valeur de l'index pour choisir un element du menu 
 
 	ball_x  DW 100			; Position X de la balle
@@ -28,6 +28,10 @@ donnees segment public    ; Segment de donnees
 	bar_x DW 100			; Position X de la bar
 	bar_y DW 180			; Position Y de la bar
 	bar_step DW 5			; Valeur d'avancement de la bar sur X
+
+	game_state DB 0         
+
+	next_pixel_color DB 0
 
 donnees ends
 
@@ -211,6 +215,7 @@ draw_menu:
     ret
 
 game:
+	mov game_state, 0
 	draw_game_main_element:
 		mov AX, ball_x
 	    mov hX, AX
@@ -228,8 +233,10 @@ game:
 		call sleep
 		call get_userinput_ingame
 		call move_ball_with_collision
-		jmp game
-
+		cmp game_state, 1
+		je end_game
+		jmp draw_game_main_element
+	end_game:
 	ret
 	
 move_bar_right:
@@ -269,8 +276,18 @@ move_bar_left:
     ret
 
 game_lose:
-	call end_prog
-
+	call draw_menu
+	mov game_state, 1
+	mov arrow_index, 0
+	mov tempo, 50
+	mov ball_x, 100
+	mov ball_y, 150
+	mov bar_x, 100
+	mov bar_y, 180
+	mov ball_speed_x, 1     
+	mov ball_speed_y, 1
+	ret
+	
 move_ball_with_collision:
 	mov AX, ball_y 
     cmp AX, 8
@@ -279,39 +296,36 @@ move_ball_with_collision:
 	mov AX, ball_y
     add AX, 7 ; hauteur de la ball
     cmp AX, bar_y; 
-    je if_collision_with_bar
+    je go_to_collision_with_bar
+	
+	mov AX, ball_y
+    add AX, 7; hauteur de la ball
+    cmp AX, 200
+    je game_lose
+    
+    mov AX, ball_x
+    cmp AX, 8
+    je go_to_ball_collision_horizontal
+    mov AX, ball_x
+    add AX, 7 ;largeur de la ball
+    cmp AX, 249
+    je go_to_ball_collision_horizontal
 	end_if_collision_with_bar:
-		mov AX, ball_y
-	    add AX, 7; hauteur de la ball
-	    cmp AX, 200
-	    je game_lose
-	    
-	    mov AX, ball_x
-	    cmp AX, 8
-	    je go_to_ball_collision_horizontal
-	    mov AX, ball_x
-	    add AX, 7 ;largeur de la ball
-	    cmp AX, 249
-	    je go_to_ball_collision_horizontal
 	end_if_collision_horizontal_with_terrain:
+
+
 		mov AX, ball_x
 	    add AX, ball_speed_x
 	    mov ball_x, AX
 	    mov AX, ball_y
 	    add AX, ball_speed_y
 	    mov ball_y, AX
+
 	ret
 
-
-if_collision_with_bar:
-    mov AX, bar_x
-    cmp ball_x, AX
-    jb end_if_collision_with_bar
-    add AX, 22 ; largeur de la bar
-    cmp ball_x, AX
-    ja end_if_collision_with_bar
-    call ball_collision_vertical
-    jmp end_if_collision_with_bar
+go_to_collision_with_bar:
+	call if_collision_with_bar
+	jmp end_if_collision_with_bar
 
 go_to_ball_collision_vertical:
 	call ball_collision_vertical
@@ -334,7 +348,25 @@ ball_collision_horizontal:
     imul BX
     mov ball_speed_x, AX
     ret
-    
+
+if_collision_with_bar:
+    mov AX, bar_x
+    cmp ball_x, AX
+    jb end_collision_with_bar
+    add AX, 22 ; largeur de la bar
+    cmp ball_x, AX
+    ja end_collision_with_bar
+    call ball_collision_vertical
+    end_collision_with_bar:
+    	ret
+
+get_ball_next_pixel_color:
+    mov ah, 0Dh
+    mov CX, ball_x
+    mov DX, ball_y
+    int 10H
+    mov next_pixel_color, AL
+    ret
 
 ;******************************************************
 ;  END_OF_FUNCTION
