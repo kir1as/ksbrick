@@ -4,7 +4,7 @@
 ;  * --> Exit
 ;  
 ;
-;  v 1.0  William LIN & Timoté VANNIER  20 Jan 2023
+;  v 1.0  William LIN & Timoté VANNIER 20 Jan 2023
 ;******************************************************
 include LIBGFX.INC
 
@@ -125,6 +125,15 @@ blc212 DB   0, 0, 0, 0, 0
 blc222 DB   0, 0, 0, 0, 0
 blc312 DB   0, 0, 0, 0, 0
 
+brick DW   20,120
+brk01 DB   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+brk11 DB   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+brk12 DB   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+brk21 DB   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+brk22 DB   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+brk31 DB   10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10
+
+
 donnees ends
 
 code    segment public    ; Segment de code
@@ -227,7 +236,7 @@ menu_choice:
     jmp fin
 
 terrain:
-    mov tempo, 10
+    mov tempo, 5
     mov col, 31
     mov rX, 0
     mov Ry, 0
@@ -248,6 +257,11 @@ terrain:
     mov Rw, 250
     mov Rh, 7
     call fillRect
+
+    mov hX, 50
+    mov hY, 100
+    mov BX, offset brick
+    CALL drawIcon
 
 boucle:
     mov AX, ball_x
