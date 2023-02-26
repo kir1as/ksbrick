@@ -31,7 +31,11 @@ donnees segment public    ; Segment de donnees
 
 	game_state DB 0         
 
-	next_pixel_color DB 0
+	next_vertical_pixel_color DB 0
+    next_horizontal_pixel_color DB 0
+
+    pixel_x DW 0
+    pixel_y DW 0
 
 donnees ends
 
@@ -73,9 +77,9 @@ end_prog:
 get_menu_input:
     cmp userinput, 'm'
     je menu_choice
-    cmp userinput, 'H'
+    cmp userinput, 'w'
     je move_up_arrow
-    cmp userinput, 'P'
+    cmp userinput, 's'
     je move_down_arrow
     ret
 
@@ -163,8 +167,8 @@ draw_game_field:
     mov Rh, 7
     call fillRect
 
-    mov hX, 50
-    mov hY, 100
+    mov hX, 40
+    mov hY, 10
     mov BX, offset img_brick
     call drawIcon
     call game
@@ -290,30 +294,35 @@ game_lose:
 	
 move_ball_with_collision:
 	mov AX, ball_y 
-    cmp AX, 8
+    cmp AX, 10
     je go_to_ball_collision_vertical
 	
 	mov AX, ball_y
     add AX, 7 ; hauteur de la ball
     cmp AX, bar_y; 
     je go_to_collision_with_bar
-	
-	mov AX, ball_y
-    add AX, 7; hauteur de la ball
-    cmp AX, 200
-    je game_lose
-    
-    mov AX, ball_x
-    cmp AX, 8
-    je go_to_ball_collision_horizontal
-    mov AX, ball_x
-    add AX, 7 ;largeur de la ball
-    cmp AX, 249
-    je go_to_ball_collision_horizontal
 	end_if_collision_with_bar:
+		mov AX, ball_y
+	    add AX, 7; hauteur de la ball
+	    cmp AX, 198
+	    je game_lose
+	    
+	    mov AX, ball_x
+	    cmp AX, 9
+	    je go_to_ball_collision_horizontal
+	    mov AX, ball_x
+	    add AX, 7 ;largeur de la ball
+	    cmp AX, 247
+	    je go_to_ball_collision_horizontal
 	end_if_collision_horizontal_with_terrain:
-
-
+		call get_ball_next_pixel_color
+        mov AL, next_vertical_pixel_color
+        add AL, next_horizontal_pixel_color
+		cmp AL, 0
+		je end_collision_with_brick
+        call ball_collision_with_brick
+		 
+	end_collision_with_brick:
 		mov AX, ball_x
 	    add AX, ball_speed_x
 	    mov ball_x, AX
@@ -361,12 +370,208 @@ if_collision_with_bar:
     	ret
 
 get_ball_next_pixel_color:
+    cmp ball_speed_x, 1
+    jne left_direction
+        cmp ball_speed_y, 1
+        jne right_top_direction
+        call get_down_right_next_pixel
+        ret
+        right_top_direction:
+        call get_top_right_next_pixel
+        ret
+    left_direction:
+    cmp ball_speed_y, 1
+    jne left_top_direction
+    call get_down_left_next_pixel
+    ret
+    left_top_direction:
+    call get_top_left_next_pixel
+    ret
+
+get_top_left_next_pixel:
+    mov BX, ball_x
+    add BX, ball_speed_x
+    mov pixel_x, BX
+
     mov ah, 0Dh
-    mov CX, ball_x
+    mov CX, pixel_x
     mov DX, ball_y
     int 10H
-    mov next_pixel_color, AL
+    mov next_horizontal_pixel_color, AL
+
+    mov BX, ball_y
+    add BX, 8
+    mov pixel_y, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, pixel_y
+    int 10H
+    cmp AL, 0
+    je end_get_horizontal_top_left_next_pixel
+    mov next_horizontal_pixel_color, AL
+    end_get_horizontal_top_left_next_pixel:
+    
+    ; get next vertical pixel
+    mov BX, ball_x
+    add BX, 8
+    mov pixel_x, BX
+
+    mov BX, ball_y
+    add BX, ball_speed_y
+    mov pixel_y, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, pixel_y
+    int 10H
+    mov next_vertical_pixel_color, AL
+
     ret
+
+get_top_right_next_pixel:
+    ; get next vertical pixel
+    mov BX, ball_y
+    add BX, ball_speed_y
+    mov pixel_y, BX
+
+    mov ah, 0Dh
+    mov CX, ball_x
+    mov DX, pixel_y
+    int 10H
+    mov next_vertical_pixel_color, AL
+
+    mov BX, ball_x
+    add BX, 8
+    mov pixel_x, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, pixel_y
+    int 10H
+    cmp AL, 0
+    je end_get_vertical_top_right_next_pixel
+    mov next_vertical_pixel_color, AL
+    end_get_vertical_top_right_next_pixel:
+    
+    mov BX, ball_y
+    add BX, 8
+    mov pixel_y, BX
+
+    mov BX, ball_x
+    add BX, 8
+    add BX, ball_speed_x
+    mov pixel_x, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, pixel_y
+    int 10H
+    mov next_horizontal_pixel_color, AL
+
+    ret
+
+get_down_left_next_pixel:
+    mov BX, ball_x
+    add BX, ball_speed_x
+    mov pixel_x, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, ball_y
+    int 10H
+    mov next_horizontal_pixel_color, AL
+
+    mov BX, ball_y
+    add BX, 8
+    mov pixel_y, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, pixel_y
+    int 10H
+    cmp AL, 0
+    je end_get_horizontal_down_left_next_pixel
+    mov next_horizontal_pixel_color, AL
+    end_get_horizontal_down_left_next_pixel:
+    
+    mov BX, ball_x
+    add BX, 8
+    mov pixel_x, BX
+
+    mov BX, ball_y
+    add BX, 8
+    add BX, ball_speed_y
+    mov pixel_y, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, pixel_y
+    int 10H
+    mov next_vertical_pixel_color, AL
+
+    ret
+
+get_down_right_next_pixel:
+    ; get next horizontal pixel
+    mov BX, ball_x
+    add BX, 8
+    add BX, ball_speed_x
+    mov pixel_x, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, ball_y
+    int 10H
+    mov next_horizontal_pixel_color, AL
+
+    mov BX, ball_y
+    add BX, 8
+    mov pixel_y, BX
+
+    mov ah, 0Dh
+    mov CX, pixel_x
+    mov DX, pixel_y
+    int 10H
+    cmp AL, 0
+    je end_get_horizontal_down_right_next_pixel
+    mov next_horizontal_pixel_color, AL
+    end_get_horizontal_down_right_next_pixel:
+
+    ; get next vertical pixel
+    mov BX, ball_y
+    add BX, 8
+    add BX, ball_speed_y
+    mov pixel_y, BX
+    
+    mov ah, 0Dh
+    mov CX, ball_x
+    mov DX, pixel_y
+    int 10H
+    mov next_vertical_pixel_color, AL
+    ret
+
+ball_collision_with_brick:
+    cmp next_vertical_pixel_color, 0
+    jne collision_vertical
+    cmp next_horizontal_pixel_color, 0
+    jne collision_horizontal
+
+    jmp end_direction_change
+    collision_horizontal: 
+    call ball_collision_horizontal
+    mov next_horizontal_pixel_color, 0
+    jmp ball_collision_with_brick
+    collision_vertical:
+    call ball_collision_vertical
+    mov next_vertical_pixel_color, 0
+    jmp ball_collision_with_brick
+
+    end_direction_change:
+
+    ret
+
+
 
 ;******************************************************
 ;  END_OF_FUNCTION
