@@ -2,7 +2,10 @@
 ;  CASSE-BRIQUE
 ;------------------------------------------------------
 ;  * --> Exit
-;  
+;  w --> move up
+;  s --> move down
+;  a --> move left
+;  d --> move right
 ;
 ;  v 1.1  William LIN & Timoté VANNIER 20 Jan 2023
 ;******************************************************
@@ -36,6 +39,16 @@ donnees segment public    ; Segment de donnees
 
     pixel_x DW 0
     pixel_y DW 0
+
+    array_bricks DW 20 dup(0)
+
+    i DW 0
+    j DW 0
+
+    brick_x DW 0
+    brick_y DW 0
+
+    arr_brick_index DW 0
 
 donnees ends
 
@@ -167,10 +180,14 @@ draw_game_field:
     mov Rh, 7
     call fillRect
 
-    mov hX, 40
-    mov hY, 10
-    mov BX, offset img_brick
-    call drawIcon
+    ; mov hX, 40
+    ; mov hY, 110
+    ; mov BX, offset img_brick
+    ; call drawIcon
+
+    call generate_bricks_array
+    call draw_game_bricks
+
     call game
     ret
 
@@ -483,7 +500,7 @@ get_down_left_next_pixel:
     mov next_horizontal_pixel_color, AL
 
     mov BX, ball_y
-    add BX, 8
+    add BX, 7
     mov pixel_y, BX
 
     mov ah, 0Dh
@@ -543,7 +560,7 @@ get_down_right_next_pixel:
     add BX, 8
     add BX, ball_speed_y
     mov pixel_y, BX
-    
+
     mov ah, 0Dh
     mov CX, ball_x
     mov DX, pixel_y
@@ -560,10 +577,12 @@ ball_collision_with_brick:
     jmp end_direction_change
     collision_horizontal: 
     call ball_collision_horizontal
+    call delete_collision_brick
     mov next_horizontal_pixel_color, 0
     jmp ball_collision_with_brick
     collision_vertical:
     call ball_collision_vertical
+    call delete_collision_brick
     mov next_vertical_pixel_color, 0
     jmp ball_collision_with_brick
 
@@ -571,7 +590,175 @@ ball_collision_with_brick:
 
     ret
 
+delete_collision_brick:
+    mov i, 0
+    mov j, 0
+    fori_delete_brick:
+        mov CX, offset array_bricks
+        mov j,0 
+        forj_delete_brick:
 
+        mov AX, i
+        mov BX, 2
+        mul BX
+        add AX, j
+        mov BX, 2
+        mul BX
+        mov arr_brick_index, AX
+        add arr_brick_index, CX
+        mov BX, arr_brick_index
+        mov AX, [BX]
+        mov brick_x, AX
+
+        sub AX, 9
+        mov BX, ball_x
+        ;add BX, ball_speed_x
+        cmp AX, BX
+        jna end_of_forj_delete_brick
+        add AX, 48
+        cmp AX, BX
+        jna end_of_forj_delete_brick
+
+        mov AX, i
+        mov BX, 2
+        mul BX
+        add AX, 1
+        mov BX, 2
+        mul BX
+        mov arr_brick_index, AX
+        add arr_brick_index, CX
+        mov BX, arr_brick_index
+        mov AX, [BX]
+        mov brick_y, AX
+
+        sub AX, 9
+        mov BX, ball_y
+        add BX, ball_speed_y
+        cmp AX, BX
+        jna end_of_forj_delete_brick
+        add AX, 28
+        cmp AX, BX
+        jna end_of_forj_delete_brick
+
+        mov AX, brick_x
+        mov hX, AX
+        mov AX, brick_y
+        mov hY, AX
+        mov BX, offset img_brick_cover
+        call drawIcon
+
+        end_of_forj_delete_brick:
+        inc i
+        cmp i,10
+        je end_of_delete_brick_loop
+        jmp fori_delete_brick
+
+    end_of_delete_brick_loop:
+
+    ret 
+
+
+generate_bricks_array:
+    mov CX, offset array_bricks
+    mov i, 0
+    mov j, 0
+    mov brick_x, 30
+    mov brick_y, 30
+    fori:
+        mov j,0 
+        cmp i,10
+        je end_of_generate_bricks_array
+        cmp brick_x, 215
+        jna forj
+        mov brick_x, 30
+        add brick_y, 20
+        forj:
+            cmp j,1
+            je insert_brick_y_to_array
+    
+            mov AX, i
+            mov BX, 2
+            mul BX
+            add AX, j
+            mov BX, 2
+            mul BX
+            mov arr_brick_index, AX
+            add arr_brick_index, CX
+            mov BX, arr_brick_index
+            mov AX, brick_x
+            mov word ptr [BX], AX
+            add brick_x, 40
+            inc j
+            jmp forj
+        insert_brick_y_to_array:
+            mov AX, i
+            mov BX, 2
+            mul BX
+            add AX, j
+            mov BX, 2
+            mul BX
+            mov arr_brick_index, AX
+            add arr_brick_index, CX
+            mov BX, arr_brick_index
+            mov AX, brick_y
+            mov word ptr [BX], AX
+            inc i
+            jmp fori
+
+    end_of_generate_bricks_array:
+
+    ret
+
+draw_game_bricks:
+    mov i, 0
+    mov j, 0
+
+    fori_draw_bricks:
+        mov CX, offset array_bricks
+        mov j,0 
+        cmp i,10
+        je end_of_draw_bricks
+        forj_draw_bricks:
+            cmp j,1
+            je get_brick_y_of_array
+    
+            mov AX, i
+            mov BX, 2
+            mul BX
+            add AX, j
+            mov BX, 2
+            mul BX
+            mov arr_brick_index, AX
+            add arr_brick_index, CX
+            mov BX, arr_brick_index
+            mov AX, [BX]
+            mov brick_x, AX
+            inc j
+            jmp forj_draw_bricks
+        get_brick_y_of_array:
+            mov AX, i
+            mov BX, 2
+            mul BX
+            add AX, j
+            mov BX, 2
+            mul BX
+            mov arr_brick_index, AX
+            add arr_brick_index, CX
+            mov BX, arr_brick_index
+            mov AX, [BX]
+            mov brick_y, AX
+            inc i 
+
+            mov AX, brick_x
+            mov hX, AX
+            mov AX, brick_y
+            mov hY, AX
+            mov BX, offset img_brick
+            call drawIcon
+
+            jmp fori_draw_bricks
+    end_of_draw_bricks:
+    ret
 
 ;******************************************************
 ;  END_OF_FUNCTION
