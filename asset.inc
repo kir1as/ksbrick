@@ -17,4 +17,5 @@ extrn img_brick_cover:word
 extrn img_brick:word
 extrn img_bar:word
 extrn img_bar_cover:word
+extrn img_win:word
 ;=============================

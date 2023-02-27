@@ -40,15 +40,22 @@ donnees segment public    ; Segment de donnees
     pixel_x DW 0
     pixel_y DW 0
 
-    array_bricks DW 20 dup(0)
+    array_bricks DW 10 dup(0)
 
     i DW 0
     j DW 0
+
+    max_bricks DW 5
 
     brick_x DW 0
     brick_y DW 0
 
     arr_brick_index DW 0
+
+    pixel_x_collision DW 0
+    pixel_y_collision DW 0
+
+    brick_deleted  DW 0
 
 donnees ends
 
@@ -179,11 +186,6 @@ draw_game_field:
     mov Rw, 250
     mov Rh, 7
     call fillRect
-
-    ; mov hX, 40
-    ; mov hY, 110
-    ; mov BX, offset img_brick
-    ; call drawIcon
 
     call generate_bricks_array
     call draw_game_bricks
@@ -415,6 +417,13 @@ get_top_left_next_pixel:
     mov DX, ball_y
     int 10H
     mov next_horizontal_pixel_color, AL
+    cmp AL, 0
+    je end_of_set_pixel_label_eight
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, ball_y
+    mov pixel_y_collision, AX
+    end_of_set_pixel_label_eight:
 
     mov BX, ball_y
     add BX, 8
@@ -427,6 +436,10 @@ get_top_left_next_pixel:
     cmp AL, 0
     je end_get_horizontal_top_left_next_pixel
     mov next_horizontal_pixel_color, AL
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
     end_get_horizontal_top_left_next_pixel:
     
     ; get next vertical pixel
@@ -443,6 +456,13 @@ get_top_left_next_pixel:
     mov DX, pixel_y
     int 10H
     mov next_vertical_pixel_color, AL
+    cmp AL, 0
+    je end_of_set_pixel_label_seven
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
+    end_of_set_pixel_label_seven:
 
     ret
 
@@ -457,6 +477,13 @@ get_top_right_next_pixel:
     mov DX, pixel_y
     int 10H
     mov next_vertical_pixel_color, AL
+    cmp AL, 0
+    je end_of_set_pixel_label_six
+    mov AX, ball_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
+    end_of_set_pixel_label_six:
 
     mov BX, ball_x
     add BX, 8
@@ -469,6 +496,10 @@ get_top_right_next_pixel:
     cmp AL, 0
     je end_get_vertical_top_right_next_pixel
     mov next_vertical_pixel_color, AL
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
     end_get_vertical_top_right_next_pixel:
     
     mov BX, ball_y
@@ -485,6 +516,13 @@ get_top_right_next_pixel:
     mov DX, pixel_y
     int 10H
     mov next_horizontal_pixel_color, AL
+    cmp AL, 0
+    je end_of_set_pixel_label_five
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
+    end_of_set_pixel_label_five:
 
     ret
 
@@ -498,6 +536,13 @@ get_down_left_next_pixel:
     mov DX, ball_y
     int 10H
     mov next_horizontal_pixel_color, AL
+    cmp AL, 0
+    je end_of_set_pixel_label_four
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, ball_y
+    mov pixel_y_collision, AX
+    end_of_set_pixel_label_four:
 
     mov BX, ball_y
     add BX, 7
@@ -510,6 +555,10 @@ get_down_left_next_pixel:
     cmp AL, 0
     je end_get_horizontal_down_left_next_pixel
     mov next_horizontal_pixel_color, AL
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
     end_get_horizontal_down_left_next_pixel:
     
     mov BX, ball_x
@@ -526,6 +575,13 @@ get_down_left_next_pixel:
     mov DX, pixel_y
     int 10H
     mov next_vertical_pixel_color, AL
+    cmp AL, 0
+    je end_of_set_pixel_label_three
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
+    end_of_set_pixel_label_three:
 
     ret
 
@@ -541,6 +597,13 @@ get_down_right_next_pixel:
     mov DX, ball_y
     int 10H
     mov next_horizontal_pixel_color, AL
+    cmp AL, 0
+    je end_of_set_pixel_label_two
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, ball_y
+    mov pixel_y_collision, AX
+    end_of_set_pixel_label_two:
 
     mov BX, ball_y
     add BX, 8
@@ -553,6 +616,10 @@ get_down_right_next_pixel:
     cmp AL, 0
     je end_get_horizontal_down_right_next_pixel
     mov next_horizontal_pixel_color, AL
+    mov AX, pixel_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
     end_get_horizontal_down_right_next_pixel:
 
     ; get next vertical pixel
@@ -566,6 +633,14 @@ get_down_right_next_pixel:
     mov DX, pixel_y
     int 10H
     mov next_vertical_pixel_color, AL
+    cmp AL, 0
+    je end_of_set_pixel_label_one
+    mov AX, ball_x
+    mov pixel_x_collision, AX
+    mov AX, pixel_y
+    mov pixel_y_collision, AX
+    end_of_set_pixel_label_one:
+
     ret
 
 ball_collision_with_brick:
@@ -593,6 +668,7 @@ ball_collision_with_brick:
 delete_collision_brick:
     mov i, 0
     mov j, 0
+
     fori_delete_brick:
         mov CX, offset array_bricks
         mov j,0 
@@ -609,15 +685,15 @@ delete_collision_brick:
         mov BX, arr_brick_index
         mov AX, [BX]
         mov brick_x, AX
+    
+        mov BX, pixel_x_collision
+        cmp AX, BX
+        ja end_of_forj_delete_brick
 
-        sub AX, 9
-        mov BX, ball_x
-        ;add BX, ball_speed_x
+        mov brick_x, AX
+        add AX, 30
         cmp AX, BX
-        jna end_of_forj_delete_brick
-        add AX, 48
-        cmp AX, BX
-        jna end_of_forj_delete_brick
+        jb end_of_forj_delete_brick
 
         mov AX, i
         mov BX, 2
@@ -630,15 +706,14 @@ delete_collision_brick:
         mov BX, arr_brick_index
         mov AX, [BX]
         mov brick_y, AX
+        mov BX, pixel_y_collision
 
-        sub AX, 9
-        mov BX, ball_y
-        add BX, ball_speed_y
         cmp AX, BX
-        jna end_of_forj_delete_brick
-        add AX, 28
+        ja end_of_forj_delete_brick
+        mov brick_y, AX
+        add AX, 10
         cmp AX, BX
-        jna end_of_forj_delete_brick
+        jb end_of_forj_delete_brick
 
         mov AX, brick_x
         mov hX, AX
@@ -647,9 +722,17 @@ delete_collision_brick:
         mov BX, offset img_brick_cover
         call drawIcon
 
+        inc brick_deleted
+        mov AX, max_bricks
+        cmp brick_deleted, AX
+        jne end_of_forj_delete_brick
+
+        call game_win
+
         end_of_forj_delete_brick:
         inc i
-        cmp i,10
+        mov AX, max_bricks
+        cmp i, AX
         je end_of_delete_brick_loop
         jmp fori_delete_brick
 
@@ -665,8 +748,9 @@ generate_bricks_array:
     mov brick_x, 30
     mov brick_y, 30
     fori:
-        mov j,0 
-        cmp i,10
+        mov j, 0 
+        mov AX, max_bricks
+        cmp i, AX
         je end_of_generate_bricks_array
         cmp brick_x, 215
         jna forj
@@ -715,8 +799,9 @@ draw_game_bricks:
 
     fori_draw_bricks:
         mov CX, offset array_bricks
-        mov j,0 
-        cmp i,10
+        mov j, 0 
+        mov AX, max_bricks
+        cmp i, AX
         je end_of_draw_bricks
         forj_draw_bricks:
             cmp j,1
@@ -758,6 +843,26 @@ draw_game_bricks:
 
             jmp fori_draw_bricks
     end_of_draw_bricks:
+    ret
+
+game_win:
+    call ClearScreen
+    mov tempo, 700
+    mov hX, 150
+    mov hY, 50
+    mov BX, offset img_win
+    call drawIcon
+    call sleep
+    call draw_menu
+    mov game_state, 1
+    mov arrow_index, 0
+    mov tempo, 50
+    mov ball_x, 100
+    mov ball_y, 150
+    mov bar_x, 100
+    mov bar_y, 180
+    mov ball_speed_x, 1     
+    mov ball_speed_y, 1
     ret
 
 ;******************************************************
