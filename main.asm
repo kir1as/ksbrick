@@ -6,6 +6,7 @@
 ;  s --> move down
 ;  a --> move left
 ;  d --> move right
+;  m --> enter
 ;
 ;  v 1.1  William LIN & Timoté VANNIER 20 Jan 2023
 ;******************************************************
@@ -40,12 +41,12 @@ donnees segment public    ; Segment de donnees
     pixel_x DW 0
     pixel_y DW 0
 
-    array_bricks DW 10 dup(0)
+    array_bricks DW 40 dup(0)
 
     i DW 0
     j DW 0
 
-    max_bricks DW 5
+    max_bricks DW 20
 
     brick_x DW 0
     brick_y DW 0
@@ -166,6 +167,7 @@ move_down_arrow:
 
 draw_game_field:
     mov tempo, 5
+
     mov col, 31
     mov rX, 0
     mov Ry, 0
@@ -309,6 +311,7 @@ game_lose:
 	mov bar_y, 180
 	mov ball_speed_x, 1     
 	mov ball_speed_y, 1
+    mov brick_deleted, 0
 	ret
 	
 move_ball_with_collision:
@@ -651,8 +654,8 @@ ball_collision_with_brick:
 
     jmp end_direction_change
     collision_horizontal: 
-    call ball_collision_horizontal
-    call delete_collision_brick
+    call ball_collision_horizontal ;changememt
+    call delete_collision_brick ;delete brick toucher
     mov next_horizontal_pixel_color, 0
     jmp ball_collision_with_brick
     collision_vertical:
@@ -863,6 +866,7 @@ game_win:
     mov bar_y, 180
     mov ball_speed_x, 1     
     mov ball_speed_y, 1
+    mov brick_deleted, 0
     ret
 
 ;******************************************************
