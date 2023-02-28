@@ -41,12 +41,12 @@ donnees segment public    ; Segment de donnees
     pixel_x DW 0
     pixel_y DW 0
 
-    array_bricks DW 40 dup(0)
+    array_bricks DW 50 dup(0)
 
     i DW 0
     j DW 0
 
-    max_bricks DW 20
+    max_bricks DW 25
 
     brick_x DW 0
     brick_y DW 0
@@ -320,7 +320,7 @@ move_ball_with_collision:
     je go_to_ball_collision_vertical
 	
 	mov AX, ball_y
-    add AX, 7 ; hauteur de la ball
+    add AX, 7 ; hauteur de la ball ; 2 mode de jeu , 7 ou 9
     cmp AX, bar_y; 
     je go_to_collision_with_bar
 	end_if_collision_with_bar:
